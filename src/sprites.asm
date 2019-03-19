@@ -25,7 +25,14 @@ RenderOnePlayer:
         sta     SprX
         lda     PlayerY,x
         sta     SprY
-        lda     #0
+        lda     PlayerIsGrounded,x
+        bne     @grounded
+
+        ; Player is in midair
+        lda     #$0c
+        jmp     @not_walking
+
+@grounded:
         lda     PlayerIsWalking,x
         beq     @not_walking
 
@@ -41,7 +48,7 @@ RenderOnePlayer:
         sta     SprTileIdx
         lda     PlayerAttrs,x
         sta     SprAttrs
-        txa
+        txa                                 ; Convert player ID to OAM index (multiply by 16)
         asl
         asl
         asl

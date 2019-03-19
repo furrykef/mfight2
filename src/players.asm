@@ -36,7 +36,7 @@ InitPlayers:
         sta     MarioX
         lda     #192
         sta     LuigiX
-        lda     #129
+        lda     #0
         sta     MarioY
         sta     LuigiY
         lda     #0
@@ -47,8 +47,6 @@ InitPlayers:
         lda     #FALSE
         sta     MarioIsWalking
         sta     LuigiIsWalking
-
-        lda     #TRUE
         sta     MarioIsGrounded
         sta     LuigiIsGrounded
 
@@ -65,6 +63,25 @@ MoveOnePlayer:
         lda     #FALSE
         sta     PlayerIsWalking,x
 
+        lda     PlayerIsGrounded,x
+        bne     @grounded
+
+        ; Player is in midair
+        lda     PlayerY,x
+        add     #4
+        sta     PlayerY,x
+        cmp     #129
+        blt     :+
+        ; Player has landed
+        lda     #129                        ; snap player to the ground
+        sta     PlayerY,x
+        lda     #TRUE
+        sta     PlayerIsGrounded,x
+:
+        rts
+
+
+@grounded:
         lda     JoyState,x
         and     #JOY_LEFT
         beq     @try_right
