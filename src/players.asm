@@ -8,6 +8,10 @@ PlayerY:
 MarioY:             .res 1
 LuigiY:             .res 1
 
+PlayerDY:
+MarioDY:            .res 1
+LuigiDY:            .res 1
+
 PlayerAttrs:
 MarioAttrs:         .res 1
 LuigiAttrs:         .res 1
@@ -39,6 +43,8 @@ InitPlayers:
         lda     #0
         sta     MarioY
         sta     LuigiY
+        sta     MarioDY
+        sta     LuigiDY
         lda     #0
         sta     MarioAttrs
         lda     #$41
@@ -68,20 +74,47 @@ MoveOnePlayer:
 
         ; Player is in midair
         lda     PlayerY,x
-        add     #4
+        add     PlayerDY,x
         sta     PlayerY,x
         cmp     #129
         blt     :+
         ; Player has landed
         lda     #129                        ; snap player to the ground
         sta     PlayerY,x
+        lda     #0
+        sta     PlayerDY,x
         lda     #TRUE
         sta     PlayerIsGrounded,x
+        rts
 :
+        lda     PlayerDY,x
+        bmi     @rising
+        cmp     #8
+        bge     @terminal_velocity
+@rising:
+        add     #1
+        sta     PlayerDY,x
+        rts
+
+@terminal_velocity:
+        lda     #8
+        sta     PlayerDY,x
         rts
 
 
 @grounded:
+        lda     JoyDown,x
+        and     #JOY_A
+        beq     @not_jumping
+
+        ; Jumping
+        lda     #FALSE
+        sta     PlayerIsGrounded,x
+        lda     #-12
+        sta     PlayerDY,x
+        rts
+
+@not_jumping:
         lda     JoyState,x
         and     #JOY_LEFT
         beq     @try_right
