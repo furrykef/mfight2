@@ -14,13 +14,13 @@ SprAttrs:       .res 1
 
 RenderSprites:
         ldx     #0
-        jsr     RenderPlayer
+        jsr     RenderOnePlayer
         inx
-        jmp     RenderPlayer
+        jmp     RenderOnePlayer
 
 
 ; X = player ID
-RenderPlayer:
+RenderOnePlayer:
         lda     PlayerX,x
         sta     SprX
         lda     PlayerY,x

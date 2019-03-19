@@ -143,32 +143,44 @@ BeginRound:
 MainLoop:
         jsr     RenderSprites
         jsr     EndFrame
+        jsr     MovePlayers
+        jmp     MainLoop
 
+
+MovePlayers:
+        ldx     #0
+        jsr     MoveOnePlayer
+        inx
+        jmp     MoveOnePlayer
+
+MoveOnePlayer:
         lda     #FALSE
-        sta     MarioIsWalking
-        sta     LuigiIsWalking
+        sta     PlayerIsWalking,x
 
-        lda     #JOY_LEFT
-        bit     JoyState
+        lda     JoyState,x
+        and     #JOY_LEFT
         beq     @try_right
         ; Walking left
         lda     #TRUE
-        sta     MarioIsWalking
-        lda     #$40
-        sta     MarioAttrs
-        dec     MarioX
-        jmp     MainLoop
+        sta     PlayerIsWalking,x
+        lda     PlayerAttrs,x
+        ora     #$40                        ; flip horizontal
+        sta     PlayerAttrs,x
+        dec     PlayerX,x
+        rts
 @try_right:
         ; Walking right
-        lda     #JOY_RIGHT
-        bit     JoyState
-        beq     MainLoop
+        lda     JoyState,x
+        and     #JOY_RIGHT
+        beq     @end
         lda     #TRUE
-        sta     MarioIsWalking
-        lda     #0
-        sta     MarioAttrs
-        inc     MarioX
-        jmp     MainLoop
+        sta     PlayerIsWalking,x
+        lda     PlayerAttrs,x
+        and     #~$40                       ; do not flip horizontal
+        sta     PlayerAttrs,x
+        inc     PlayerX,x
+@end:
+        rts
 
 
 LoadPalette:
