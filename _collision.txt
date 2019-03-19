@@ -1,0 +1,50 @@
+if ((spr1.left <= spr2.right and spr1.right >= spr2.left)
+    or (spr1.left + 0x80 <= spr2.right + 0x80 and spr1.right + 0x80 >= spr2.left + 0x80))
+   and spr1.top <= spr2.bottom and spr1.bottom >= spr2.top:
+        collide()
+
+Note that + 0x80 can be replaced with XOR 0x80 to save a CLC.
+
+The usual AABB collision algorithm assumes right > left, but right < left for a sprite that's wrapping around. If we fail to account for wraparound, no collision will ever register between sprites that are wrapping around (whether only one wraps or both wrap). Shifting both sprites horizontally by 0x80 will turn a sprite that's wrapping around into a sprite that isn't, while not changing the sprites' relative positions. If this translation makes the other sprite wrap around (partially or entirely), it was too far away to collide anyway and the algorithm will correctly report no collision.
+
+This algorithm's correctness has been verified.
+
+
+Attempted implementation:
+
+; X = object 1 index
+; Y = object 2 index
+CheckCollision:
+        ; Check vertical collision first
+        lda     ObjTop,x
+        cmp     ObjBottom,y
+        bgt     @no
+        lda     ObjBottom,x
+        cmp     ObjTop,y
+        blt     @no
+
+        ; Vertical collision matched
+        ; Check simple horizontal collision
+        lda     ObjLeft,x
+        cmp     ObjRight,y
+        bgt     @try_shifted
+        lda     ObjRight,x
+        cmp     ObjLeft,y
+        bge     @yes
+@try_shifted:
+        ; Naive horizontal collision did not match
+        ; Shift objects horizontally and try again
+        ; (This compensates for any objects wrapping around the edges)
+        lda     ObjLeftPlusShift,x
+        cmp     ObjRightPlusShift,y
+        bgt     @no
+        lda     ObjRightPlusShift,x
+        cmp     ObjLeftPlusShift,y
+        blt     @no
+@yes:
+        lda     #TRUE
+        rts
+
+@no:
+        lda     #FALSE
+        rts

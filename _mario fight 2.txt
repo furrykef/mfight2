@@ -1,0 +1,23 @@
+Ideas
+-----
+* Smaller collision box in midair than when walking (a la DK arcade)
+* Fireballs (a la Mario Bros.) for keeping players moving
+* Moving platforms
+* Warp pipes with piranha plants
+* Ice platforms
+* 
+* Alternative victory or defeat conditions (collecting coins??)
+
+
+Physics
+-------
+Elastic collisions are the main theme here. Since Mario and Luigi have the same mass, if both are standing on a platform and Mario charges into Luigi, Mario should transfer all his momentum to Luigi, much like a cue ball striking a ball head-on.
+
+What if Luigi is on a platform and Mario jumps on him? What should happen is Mario's vertical momentum is transferred into Luigi, but Luigi can't move further down, so he bounces back up, but he can't, really, so his vertical momentum is transferred back into Mario.
+
+Maybe if a player is hanging over a platform's edge, stomping him will be sufficient to send him over it. This could be accomplished by using a smaller BG collision box in midair and using the smaller box when stunned.
+
+
+Miscellaneous
+-------------
+If, say, Luigi falls into the lava pit, the text "Mario wins!" appears. But if Mario falls into the pit shortly afterward, underneath it will say, "Oops! Never mind." We might also have a special musical ditty just for this sort of epic fail.

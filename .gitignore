@@ -1,0 +1,10 @@
+*.o
+*.nes
+*.srm
+*.deb
+*.dbg
+*.nl
+*.pyc
+*/__pycache__/
+map.txt
+*listing*
