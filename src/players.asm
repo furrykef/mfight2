@@ -4,6 +4,10 @@ PlayerX:
 MarioX:             .res 1
 LuigiX:             .res 1
 
+PlayerDX:
+MarioDX:            .res 1
+LuigiDX:            .res 1
+
 PlayerY:
 MarioY:             .res 1
 LuigiY:             .res 1
@@ -15,10 +19,6 @@ LuigiDY:            .res 1
 PlayerAttrs:
 MarioAttrs:         .res 1
 LuigiAttrs:         .res 1
-
-PlayerIsWalking:
-MarioIsWalking:     .res 1
-LuigiIsWalking:     .res 1
 
 PlayerIsGrounded:
 MarioIsGrounded:    .res 1
@@ -43,6 +43,8 @@ InitPlayers:
         lda     #0
         sta     MarioY
         sta     LuigiY
+        sta     MarioDX
+        sta     LuigiDX
         sta     MarioDY
         sta     LuigiDY
         lda     #0
@@ -51,8 +53,6 @@ InitPlayers:
         sta     LuigiAttrs
 
         lda     #FALSE
-        sta     MarioIsWalking
-        sta     LuigiIsWalking
         sta     MarioIsGrounded
         sta     LuigiIsGrounded
 
@@ -66,16 +66,18 @@ MovePlayers:
         jmp     MoveOnePlayer
 
 MoveOnePlayer:
-        lda     #FALSE
-        sta     PlayerIsWalking,x
+        lda     PlayerX,x
+        add     PlayerDX,x
+        sta     PlayerX,x
+        lda     PlayerY,x
+        add     PlayerDY,x
+        sta     PlayerY,x
 
         lda     PlayerIsGrounded,x
         bne     @grounded
 
         ; Player is in midair
         lda     PlayerY,x
-        add     PlayerDY,x
-        sta     PlayerY,x
         cmp     #129
         blt     :+
         ; Player has landed
@@ -119,25 +121,26 @@ MoveOnePlayer:
         and     #JOY_LEFT
         beq     @try_right
         ; Walking left
-        lda     #TRUE
-        sta     PlayerIsWalking,x
         lda     PlayerAttrs,x
         ora     #$40                        ; flip horizontal
         sta     PlayerAttrs,x
-        dec     PlayerX,x
+        lda     #-1
+        sta     PlayerDX,x
         rts
 @try_right:
         ; Walking right
         lda     JoyState,x
         and     #JOY_RIGHT
-        beq     @end
-        lda     #TRUE
-        sta     PlayerIsWalking,x
+        beq     @stop
         lda     PlayerAttrs,x
         and     #~$40                       ; do not flip horizontal
         sta     PlayerAttrs,x
-        inc     PlayerX,x
-@end:
+        lda     #1
+        sta     PlayerDX,x
+        rts
+@stop:
+        lda     #0
+        sta     PlayerDX,x
         rts
 
 

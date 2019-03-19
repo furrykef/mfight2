@@ -33,8 +33,8 @@ RenderOnePlayer:
         jmp     @not_walking
 
 @grounded:
-        lda     PlayerIsWalking,x
-        beq     @not_walking
+        lda     PlayerDX,x
+        beq     @not_walking                ; note the tile index will be 0
 
         ; Player is walking
         lda     PlayerX,x
