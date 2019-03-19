@@ -12,40 +12,41 @@ SprAttrs:       .res 1
 
 .segment "CODE"
 
-RenderMario:
-        ldy     #OAM_IDX_MARIO
-        lda     MarioX
+RenderSprites:
+        ldx     #0
+        jsr     RenderPlayer
+        inx
+        jmp     RenderPlayer
+
+
+; X = player ID
+RenderPlayer:
+        lda     PlayerX,x
         sta     SprX
-        lda     MarioY
+        lda     PlayerY,x
         sta     SprY
         lda     #0
-        bit     MarioIsWalking
-        bpl     @not_walking
+        lda     PlayerIsWalking,x
+        beq     @not_walking
 
         ; Player is walking
         lda     FrameCounter
         and     #$0c
         lsr
         lsr
-        tax
-        lda     WalkCycle,x
+        tay
+        lda     WalkCycle,y
 
 @not_walking:
         sta     SprTileIdx
-        lda     MarioAttrs
+        lda     PlayerAttrs,x
         sta     SprAttrs
-        jmp     Render16x16
-
-RenderLuigi:
-        ldy     #OAM_IDX_LUIGI
-        lda     LuigiX
-        sta     SprX
-        lda     LuigiY
-        sta     SprY
-        lda     #4
-        sta     SprTileIdx
-        lda     #$41
-        sta     SprAttrs
+        txa
+        asl
+        asl
+        asl
+        asl
+        tay
         jmp     Render16x16
 
 WalkCycle:

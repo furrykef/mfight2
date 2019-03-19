@@ -38,12 +38,21 @@ TRUE = $ff
 
 FrameCounter:       .res 1
 
+PlayerX:
 MarioX:             .res 1
-MarioY:             .res 1
 LuigiX:             .res 1
+
+PlayerY:
+MarioY:             .res 1
 LuigiY:             .res 1
+
+PlayerAttrs:
 MarioAttrs:         .res 1
+LuigiAttrs:         .res 1
+
+PlayerIsWalking:
 MarioIsWalking:     .res 1
+LuigiIsWalking:     .res 1
 
 ; One byte per player
 JoyState:           .res 2
@@ -125,17 +134,19 @@ BeginRound:
         sta     LuigiY
         lda     #0
         sta     MarioAttrs
+        lda     #$41
+        sta     LuigiAttrs
         jsr     RenderOff
         jsr     LoadPalette
         jsr     LoadArenaBG
         jsr     RenderOn
 MainLoop:
-        jsr     RenderMario
-        jsr     RenderLuigi
+        jsr     RenderSprites
         jsr     EndFrame
 
         lda     #FALSE
         sta     MarioIsWalking
+        sta     LuigiIsWalking
 
         lda     #JOY_LEFT
         bit     JoyState
