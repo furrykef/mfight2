@@ -30,7 +30,7 @@ RenderOnePlayer:
         beq     @not_walking
 
         ; Player is walking
-        lda     FrameCounter
+        lda     PlayerX,x
         and     #$0c
         lsr
         lsr
