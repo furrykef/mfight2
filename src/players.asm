@@ -16,6 +16,11 @@ PlayerIsWalking:
 MarioIsWalking:     .res 1
 LuigiIsWalking:     .res 1
 
+PlayerIsGrounded:
+MarioIsGrounded:    .res 1
+LuigiIsGrounded:    .res 1
+
+
 ObjLeft:            .res 2
 ObjTop:             .res 2
 ObjRight:           .res 2
@@ -26,10 +31,34 @@ ObjRightPlusShift:  .res 2
 
 .segment "CODE"
 
+InitPlayers:
+        lda     #64
+        sta     MarioX
+        lda     #192
+        sta     LuigiX
+        lda     #129
+        sta     MarioY
+        sta     LuigiY
+        lda     #0
+        sta     MarioAttrs
+        lda     #$41
+        sta     LuigiAttrs
+
+        lda     #FALSE
+        sta     MarioIsWalking
+        sta     LuigiIsWalking
+
+        lda     #TRUE
+        sta     MarioIsGrounded
+        sta     LuigiIsGrounded
+
+        rts
+
+
 MovePlayers:
-        ldx     #0
+        ldx     #0                          ; Mario
         jsr     MoveOnePlayer
-        inx
+        inx                                 ; Luigi
         jmp     MoveOnePlayer
 
 MoveOnePlayer:

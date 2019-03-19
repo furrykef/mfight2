@@ -110,17 +110,7 @@ Main:
 
 
 BeginRound:
-        lda     #64
-        sta     MarioX
-        lda     #192
-        sta     LuigiX
-        lda     #129
-        sta     MarioY
-        sta     LuigiY
-        lda     #0
-        sta     MarioAttrs
-        lda     #$41
-        sta     LuigiAttrs
+        jsr     InitPlayers
         jsr     RenderOff
         jsr     LoadPalette
         jsr     LoadArenaBG
