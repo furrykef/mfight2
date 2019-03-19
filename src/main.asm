@@ -129,6 +129,7 @@ MainLoop:
         jsr     RenderSprites
         jsr     EndFrame
         jsr     MovePlayers
+        jsr     CheckPlayerCollisions
         jmp     MainLoop
 
 
