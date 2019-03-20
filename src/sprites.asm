@@ -34,8 +34,10 @@ RenderOnePlayer:
 
 @grounded:
         lda     PlayerDX,x
+        bne     @walking
+        lda     PlayerDXFrac,x
         beq     @not_walking                ; note the tile index will be 0
-
+@walking:
         ; Player is walking
         lda     PlayerX,x
         and     #$0c

@@ -116,10 +116,10 @@ BeginRound:
         jsr     LoadArenaBG
         jsr     RenderOn
 MainLoop:
-        jsr     RenderSprites
-        jsr     EndFrame
         jsr     MovePlayers
         jsr     CheckPlayerCollisions
+        jsr     RenderSprites
+        jsr     EndFrame
         jmp     MainLoop
 
 
