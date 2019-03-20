@@ -183,19 +183,25 @@ MoveOnePlayer:
         rts
 
 @check_horizontal_movement:
+        lda     PlayerIsGrounded,x
+        sta     T0
         lda     #WALK_ACCEL
+        bit     T0
+        bmi     :+
+        lsr                                 ; halve acceleration while in midair
+:
         sta     Accel
 
         lda     JoyState,x
         and     #JOY_LEFT
         beq     @try_right
-        ; Walking left
+        ; Moving left
         lda     PlayerAttrs,x
         ora     #$40                        ; flip horizontal
         sta     PlayerAttrs,x
         jmp     ApplyAccelLeft
 @try_right:
-        ; Walking right
+        ; Moving right
         lda     JoyState,x
         and     #JOY_RIGHT
         beq     @stop
