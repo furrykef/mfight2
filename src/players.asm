@@ -4,6 +4,12 @@ GRAVITY = $40
 ; Jump velocity is 8.8 fixed point
 JUMP_VELOCITY = -$0600
 
+; Acceleration is 0.8 fixed point
+WALK_ACCEL = $30
+
+; Maximum speed is 8.8 fixed point
+WALK_MAX_SPEED = $0180
+
 
 .segment "ZEROPAGE"
 
@@ -46,6 +52,9 @@ LuigiAttrs:         .res 1
 PlayerIsGrounded:
 MarioIsGrounded:    .res 1
 LuigiIsGrounded:    .res 1
+
+
+Accel:              .res 1
 
 
 ObjLeft:            .res 2
@@ -174,6 +183,9 @@ MoveOnePlayer:
         rts
 
 @not_jumping:
+        lda     #WALK_ACCEL
+        sta     Accel
+
         lda     JoyState,x
         and     #JOY_LEFT
         beq     @try_right
@@ -181,11 +193,7 @@ MoveOnePlayer:
         lda     PlayerAttrs,x
         ora     #$40                        ; flip horizontal
         sta     PlayerAttrs,x
-        lda     #-1
-        sta     PlayerDX,x
-        lda     #0
-        sta     PlayerDXFrac,x
-        rts
+        jmp     ApplyAccelLeft
 @try_right:
         ; Walking right
         lda     JoyState,x
@@ -194,15 +202,87 @@ MoveOnePlayer:
         lda     PlayerAttrs,x
         and     #~$40                       ; do not flip horizontal
         sta     PlayerAttrs,x
-        lda     #1
-        sta     PlayerDX,x
-        lda     #0
-        sta     PlayerDXFrac,x
-        rts
+        jmp     ApplyAccelRight
 @stop:
         lda     #0
         sta     PlayerDX,x
         sta     PlayerDXFrac,x
+        rts
+
+
+; @TODO@ decelerate if exceeding min velocity
+ApplyAccelLeft:
+        ; Don't accelerate if our horizontal velocity <= minimum
+        ; (This is a signed comparison; result is in N flag instead of C flag)
+        lda     PlayerDXFrac,x
+        cmp     #<(-WALK_MAX_SPEED)
+        lda     PlayerDX,x
+        sbc     #>(-WALK_MAX_SPEED)
+        bvc     @dont_flip_sign
+        eor     #$80
+@dont_flip_sign:
+        bmi     @end                        ; bail if our speed's already maxed out
+
+        ; Apply acceleration
+        lda     PlayerDXFrac,x
+        sub     Accel
+        sta     PlayerDXFrac,x
+        dec_cc  {PlayerDX,x}
+
+        ; If we exceed min velocity, clamp it.
+        cmp     #<-(WALK_MAX_SPEED)
+        lda     PlayerDX,x
+        sbc     #>-(WALK_MAX_SPEED)
+        bvc     @dont_flip_sign2
+        eor     #$80
+@dont_flip_sign2:
+        bpl     @end                        ; we're done if speed is less than max
+
+        ; Exceeded min; clamp
+        lda     #<(-WALK_MAX_SPEED)
+        sta     PlayerDXFrac,x
+        lda     #>(-WALK_MAX_SPEED)
+        sta     PlayerDX,x
+
+@end:
+        rts
+
+
+; @TODO@ decelerate if exceeding max velocity
+ApplyAccelRight:
+        ; Don't accelerate if our horizontal velocity >= maximum
+        ; (This is a signed comparison; result is in N flag instead of C flag)
+        lda     PlayerDXFrac,x
+        cmp     #<WALK_MAX_SPEED
+        lda     PlayerDX,x
+        sbc     #>WALK_MAX_SPEED
+        bvc     @dont_flip_sign
+        eor     #$80
+@dont_flip_sign:
+        bpl     @end                        ; bail if our speed's already maxed out
+
+        ; Apply acceleration
+        lda     PlayerDXFrac,x
+        add     Accel
+        sta     PlayerDXFrac,x
+        inc_cs  {PlayerDX,x}
+
+        ; If we exceed max velocity, clamp it.
+        cmp     #<WALK_MAX_SPEED
+        lda     PlayerDX,x
+        sbc     #>WALK_MAX_SPEED
+        bvc     @dont_flip_sign2
+        eor     #$80
+@dont_flip_sign2:
+        bmi     @end                        ; we're done if speed is less than max
+
+        ; Exceeded max; clamp
+        lda     #<WALK_MAX_SPEED
+        sta     PlayerDXFrac,x
+        lda     #>WALK_MAX_SPEED
+        sta     PlayerDX,x
+
+@end:
         rts
 
 
