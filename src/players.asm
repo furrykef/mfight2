@@ -1,12 +1,27 @@
+; Gravity is 0.8 fixed point
+GRAVITY = $40
+
+; Jump velocity is 8.8 fixed point
+JUMP_VELOCITY = -$0600
+
+
 .segment "ZEROPAGE"
 
 PlayerX:
 MarioX:             .res 1
 LuigiX:             .res 1
 
+PlayerXFrac:
+MarioXFrac:         .res 1
+LuigiXFrac:         .res 1
+
 PlayerDX:
 MarioDX:            .res 1
 LuigiDX:            .res 1
+
+PlayerDXFrac:
+MarioDXFrac:        .res 1
+LuigiDXFrac:        .res 1
 
 PlayerY:
 MarioY:             .res 1
@@ -15,6 +30,14 @@ LuigiY:             .res 1
 PlayerDY:
 MarioDY:            .res 1
 LuigiDY:            .res 1
+
+PlayerYFrac:
+MarioYFrac:         .res 1
+LuigiYFrac:         .res 1
+
+PlayerDYFrac:
+MarioDYFrac:        .res 1
+LuigiDYFrac:        .res 1
 
 PlayerAttrs:
 MarioAttrs:         .res 1
@@ -41,12 +64,20 @@ InitPlayers:
         lda     #192
         sta     LuigiX
         lda     #0
+        sta     MarioXFrac
+        sta     LuigiXFrac
         sta     MarioY
         sta     LuigiY
+        sta     MarioYFrac
+        sta     LuigiYFrac
         sta     MarioDX
         sta     LuigiDX
+        sta     MarioDXFrac
+        sta     LuigiDXFrac
         sta     MarioDY
         sta     LuigiDY
+        sta     MarioDYFrac
+        sta     LuigiDYFrac
         lda     #0
         sta     MarioAttrs
         lda     #$41
@@ -66,11 +97,18 @@ MovePlayers:
         jmp     MoveOnePlayer
 
 MoveOnePlayer:
+        lda     PlayerXFrac,x
+        add     PlayerDXFrac,x
+        sta     PlayerXFrac,x
         lda     PlayerX,x
-        add     PlayerDX,x
+        adc     PlayerDX,x
         sta     PlayerX,x
+
+        lda     PlayerYFrac,x
+        add     PlayerDYFrac,x
+        sta     PlayerYFrac,x
         lda     PlayerY,x
-        add     PlayerDY,x
+        adc     PlayerDY,x
         sta     PlayerY,x
 
         lda     PlayerIsGrounded,x
@@ -79,28 +117,34 @@ MoveOnePlayer:
         ; Player is in midair
         lda     PlayerY,x
         cmp     #129
-        blt     :+
+        blt     @not_landing
         ; Player has landed
         lda     #129                        ; snap player to the ground
         sta     PlayerY,x
         lda     #0
+        sta     PlayerYFrac,x
         sta     PlayerDY,x
+        sta     PlayerDYFrac,x
         lda     #TRUE
         sta     PlayerIsGrounded,x
         rts
-:
+@not_landing:
         lda     PlayerDY,x
         bmi     @rising
         cmp     #8
         bge     @terminal_velocity
 @rising:
-        add     #1
-        sta     PlayerDY,x
+        lda     PlayerDYFrac,x
+        add     #GRAVITY
+        sta     PlayerDYFrac,x
+        inc_cs  {PlayerDY,x}
         rts
 
 @terminal_velocity:
         lda     #8
         sta     PlayerDY,x
+        lda     #0
+        sta     PlayerDYFrac,x
         rts
 
 
@@ -112,8 +156,10 @@ MoveOnePlayer:
         ; Jumping
         lda     #FALSE
         sta     PlayerIsGrounded,x
-        lda     #-12
+        lda     #>JUMP_VELOCITY
         sta     PlayerDY,x
+        lda     #<JUMP_VELOCITY
+        sta     PlayerDYFrac,x
         rts
 
 @not_jumping:
@@ -126,6 +172,8 @@ MoveOnePlayer:
         sta     PlayerAttrs,x
         lda     #-1
         sta     PlayerDX,x
+        lda     #0
+        sta     PlayerDXFrac,x
         rts
 @try_right:
         ; Walking right
@@ -137,10 +185,13 @@ MoveOnePlayer:
         sta     PlayerAttrs,x
         lda     #1
         sta     PlayerDX,x
+        lda     #0
+        sta     PlayerDXFrac,x
         rts
 @stop:
         lda     #0
         sta     PlayerDX,x
+        sta     PlayerDXFrac,x
         rts
 
 

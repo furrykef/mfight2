@@ -1,11 +1,12 @@
 Ideas
 -----
-* Smaller collision box in midair than when walking (a la DK arcade)
+* Smaller BG collision box in midair than when walking (a la DK arcade)
 * Fireballs (a la Mario Bros.) for keeping players moving
 * Moving platforms
 * Warp pipes with piranha plants
 * Ice platforms
-* 
+* Donut blocks (players should start on these)
+* Bombs (eggs, whatever) that drop on players who idle too much
 * Alternative victory or defeat conditions (collecting coins??)
 
 
@@ -20,4 +21,4 @@ Maybe if a player is hanging over a platform's edge, stomping him will be suffic
 
 Miscellaneous
 -------------
-If, say, Luigi falls into the lava pit, the text "Mario wins!" appears. But if Mario falls into the pit shortly afterward, underneath it will say, "Oops! Never mind." We might also have a special musical ditty just for this sort of epic fail.
+If, say, Luigi falls into the lava pit, the text "Mario wins!" appears. But if Mario falls into the pit shortly afterward, underneath it will say, "Oops! Never mind." We might also have a special musical ditty just for this sort of epic fail. This should not appear for near simultaneous deaths.
