@@ -136,7 +136,7 @@ MoveOnePlayer:
         sta     PlayerDYFrac,x
         lda     #TRUE
         sta     PlayerIsGrounded,x
-        rts
+        jmp     @check_horizontal_movement
 @not_landing:
         lda     PlayerDY,x
         bmi     @rising
@@ -151,27 +151,27 @@ MoveOnePlayer:
         bne     @no_extra_gravity
         ; A button not held; use high gravity (1 px/frame)
         inc     PlayerDY,x
-        rts
+        jmp     @check_horizontal_movement
 
 @no_extra_gravity:
         lda     PlayerDYFrac,x
         add     #GRAVITY
         sta     PlayerDYFrac,x
         inc_cs  {PlayerDY,x}
-        rts
+        jmp     @check_horizontal_movement
 
 @terminal_velocity:
         lda     #8
         sta     PlayerDY,x
         lda     #0
         sta     PlayerDYFrac,x
-        rts
+        jmp     @check_horizontal_movement
 
 
 @grounded:
         lda     JoyDown,x
         and     #JOY_A
-        beq     @not_jumping
+        beq     @check_horizontal_movement
 
         ; Jumping
         lda     #FALSE
@@ -182,7 +182,7 @@ MoveOnePlayer:
         sta     PlayerDYFrac,x
         rts
 
-@not_jumping:
+@check_horizontal_movement:
         lda     #WALK_ACCEL
         sta     Accel
 
