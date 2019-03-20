@@ -1,5 +1,6 @@
 ; Gravity is 0.8 fixed point
 GRAVITY = $40
+FAST_GRAVITY = $ff
 
 ; Jump velocity is 8.8 fixed point
 JUMP_VELOCITY = -$0600
@@ -133,7 +134,21 @@ MoveOnePlayer:
         bmi     @rising
         cmp     #8
         bge     @terminal_velocity
+        ; We're falling
+        jmp     @no_extra_gravity
 @rising:
+        ; Apply extra gravity if A button is not held
+        lda     JoyState,x
+        and     #JOY_A
+        bne     @no_extra_gravity
+        ; A button not held; use fast gravity
+        lda     PlayerDYFrac,x
+        add     #FAST_GRAVITY
+        sta     PlayerDYFrac,x
+        inc_cs  {PlayerDY,x}
+        rts
+
+@no_extra_gravity:
         lda     PlayerDYFrac,x
         add     #GRAVITY
         sta     PlayerDYFrac,x
@@ -205,7 +220,6 @@ CheckPlayerCollisions:
         sta     MyOAM+62
         lda     #128
         sta     MyOAM+63
-
 
         lda     MarioX
         sub     #5
