@@ -106,7 +106,7 @@ Render16x16:
 
         ; Y coordinates
         lda     SprY
-        sub     #18
+        sub     #17
         sta     MyOAM,y
         sta     MyOAM+8,y
         add     #8

@@ -363,11 +363,11 @@ CheckPlayerCollisions:
         eor     #$80
         sta     ObjRightPlusShift
         lda     MarioY
-        sub     #17
-        sta     ObjTop
-        add     #16
         sta     ObjBottom
+        sub     #16
+        sta     ObjTop
 
+        ; @FIXME@ duplicate code
         lda     LuigiX
         sub     #5
         sta     ObjLeft+1
@@ -379,10 +379,9 @@ CheckPlayerCollisions:
         eor     #$80
         sta     ObjRightPlusShift+1
         lda     LuigiY
-        sub     #17
-        sta     ObjTop+1
-        add     #16
         sta     ObjBottom+1
+        sub     #16
+        sta     ObjTop+1
 
         ldx     #0
         ldy     #1
