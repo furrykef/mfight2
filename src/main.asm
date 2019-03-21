@@ -117,7 +117,7 @@ BeginRound:
         jsr     InitPlayers
         jsr     RenderOff
         jsr     LoadPalette
-        jsr     LoadArenaBG
+        jsr     LoadArenaIntoVram
         jsr     RenderOn
 MainLoop:
         jsr     MovePlayers
@@ -143,14 +143,19 @@ LoadPalette:
         rts
 
 
-LoadArenaBG:
-        lda     #$22
+LoadArenaIntoVram:
+        lda     #$20
         sta     PPUADDR
         lda     #$00
         sta     PPUADDR
-        lda     #1
-.repeat 32
+
+        ldx     #0
+.repeat 4, I
+:
+        lda     Arena+I*256,x
         sta     PPUDATA
+        inx
+        bne     :-
 .endrepeat
         rts
 
@@ -248,6 +253,10 @@ HandleVblank:
 Palette:
 .incbin "../assets/mfight.pal.dat"
 PaletteSize = * - Palette
+
+
+Arena:
+.incbin "../assets/arena.nam"
 
 
 .segment "VECTORS"

@@ -10,6 +10,13 @@ Ideas
 * Alternative victory or defeat conditions (collecting coins??)
 
 
+Imbalance
+---------
+It's important that most situations in the game are in some way unequal, to motivate the players to attack.
+
+Acceleration should be gradual. This way when Mario and Luigi charge at each other, the player with more momentum has an advantage.
+
+
 Physics
 -------
 Elastic collisions are the main theme here. Since Mario and Luigi have the same mass, if both are standing on a platform and Mario charges into Luigi, Mario should transfer all his momentum to Luigi, much like a cue ball striking a ball head-on.
