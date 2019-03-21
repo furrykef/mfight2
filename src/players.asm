@@ -313,16 +313,14 @@ GetBGTileAtPlayer:
         sta     T2                          ; MSB of addend
         lda     PlayerY,x                   ; A will be the LSB
 
-        ; Divide by 8 to convert pixels to tiles
-        lsr
-        lsr
-        lsr
-
-        ; Multiply by 32
-.repeat 5
+        ; Divide by 8 to convert pixels to tiles, then multiply by 32 to convert to array index.
+        ; This is equivalent to shifting right by three, then left by five, or (as here)
+        ; clearing the three least significant bits, then shifting left by two.
+        and     #$f8
         asl
         rol     T2
-.endrepeat
+        asl
+        rol     T2
 
         ; Add to the pointer
         add     T0
