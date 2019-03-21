@@ -120,24 +120,37 @@ MoveOnePlayer:
         adc     PlayerDY,x
         sta     PlayerY,x
 
-        lda     PlayerIsGrounded,x
-        bne     @grounded
+        ; Collide, but only if we're not rising
+        jsr     CheckPlayerBGCollision
+        sta     PlayerIsGrounded,x
+        beq     @in_midair
 
-        ; Player is in midair
+        ; Player is on ground; snap to tile boundary
         lda     PlayerY,x
-        cmp     #129
-        blt     @not_landing
-        ; Player has landed
-        lda     #129                        ; snap player to the ground
+        and     #$f8
+        ;add     #7
         sta     PlayerY,x
+        ; Kill vertical velocity
         lda     #0
         sta     PlayerYFrac,x
         sta     PlayerDY,x
         sta     PlayerDYFrac,x
-        lda     #TRUE
+
+        ; Is player jumping?
+        lda     JoyDown,x
+        and     #JOY_A
+        beq     @check_horizontal_movement
+
+        ; Jumping
+        lda     #FALSE
         sta     PlayerIsGrounded,x
+        lda     #>JUMP_VELOCITY
+        sta     PlayerDY,x
+        lda     #<JUMP_VELOCITY
+        sta     PlayerDYFrac,x
         jmp     @check_horizontal_movement
-@not_landing:
+
+@in_midair:
         lda     PlayerDY,x
         bmi     @rising
         cmp     #8
@@ -166,21 +179,6 @@ MoveOnePlayer:
         lda     #0
         sta     PlayerDYFrac,x
         jmp     @check_horizontal_movement
-
-
-@grounded:
-        lda     JoyDown,x
-        and     #JOY_A
-        beq     @check_horizontal_movement
-
-        ; Jumping
-        lda     #FALSE
-        sta     PlayerIsGrounded,x
-        lda     #>JUMP_VELOCITY
-        sta     PlayerDY,x
-        lda     #<JUMP_VELOCITY
-        sta     PlayerDYFrac,x
-        rts
 
 @check_horizontal_movement:
         lda     PlayerIsGrounded,x
@@ -292,6 +290,57 @@ ApplyAccelRight:
         rts
 
 
+CheckPlayerBGCollision:
+        jsr     GetBGTileAtPlayer
+        cmp     #1
+        beq     @yes
+        lda     #FALSE
+        rts
+@yes:
+        lda     #TRUE
+        rts
+
+
+GetBGTileAtPlayer:
+        ; T0 will point to the start of the row in the Arena array
+        ; IOW, T0 = Arena + PlayerTileY*32
+        lda     #<Arena
+        sta     T0
+        lda     #>Arena
+        sta     T1
+
+        lda     #0
+        sta     T2                          ; MSB of addend
+        lda     PlayerY,x                   ; A will be the LSB
+
+        ; Divide by 8 to convert pixels to tiles
+        lsr
+        lsr
+        lsr
+
+        ; Multiply by 32
+.repeat 5
+        asl
+        rol     T2
+.endrepeat
+
+        ; Add to the pointer
+        add     T0
+        sta     T0
+        lda     T2
+        adc     T1
+        sta     T1
+
+        ; T0 now points to the start of the row we're on
+        lda     PlayerX,x
+        lsr                                 ; convert from pixels to tiles
+        lsr
+        lsr
+        tay
+        lda     (T0),y
+        rts
+
+
 CheckPlayerCollisions:
         ; Checkmark
         lda     #$ff
@@ -337,7 +386,7 @@ CheckPlayerCollisions:
 
         ldx     #0
         ldy     #1
-        jsr     CheckCollisions
+        jsr     CheckObjCollision
 
         beq     :+
         ; Make checkmark visible
@@ -349,7 +398,7 @@ CheckPlayerCollisions:
 
 ; X = object 1 index
 ; Y = object 2 index
-CheckCollisions:
+CheckObjCollision:
         ; Check vertical collision first
         lda     ObjTop,x
         cmp     ObjBottom,y

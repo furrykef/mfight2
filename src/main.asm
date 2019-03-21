@@ -39,6 +39,8 @@ TRUE = $ff
 ; Temp variables
 T0:                 .res 1
 T1:                 .res 1
+T2:                 .res 1
+T3:                 .res 1
 
 FrameCounter:       .res 1
 
