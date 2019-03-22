@@ -392,6 +392,14 @@ CheckPlayerCollisions:
         swap MarioDY, LuigiDY
         swap MarioDYFrac, LuigiDYFrac
 
+        ; Let's exaggerate horizontal collisions a bit
+.repeat 2
+        asl     MarioDXFrac
+        rol     MarioDX
+        asl     LuigiDXFrac
+        rol     LuigiDX
+.endrepeat
+
 @no_collision:
         rts
 
