@@ -162,7 +162,7 @@ MoveOnePlayer:
 @in_midair:
         lda     PlayerDY,x
         bmi     @rising
-        cmp     #8
+        cmp     #7
         bge     @terminal_velocity
         ; We're falling
         jmp     @no_extra_gravity
@@ -183,7 +183,7 @@ MoveOnePlayer:
         jmp     @check_horizontal_movement
 
 @terminal_velocity:
-        lda     #8
+        lda     #7
         sta     PlayerDY,x
         lda     #0
         sta     PlayerDYFrac,x
@@ -349,16 +349,6 @@ GetBGTileAtPlayer:
 
 
 CheckPlayerCollisions:
-        ; Checkmark
-        lda     #$ff
-        sta     MyOAM+60
-        lda     #$18
-        sta     MyOAM+61
-        lda     #0
-        sta     MyOAM+62
-        lda     #128
-        sta     MyOAM+63
-
         lda     MarioX
         sub     #5
         sta     ObjLeft
@@ -394,11 +384,15 @@ CheckPlayerCollisions:
         ldy     #1
         jsr     CheckObjCollision
 
-        beq     :+
-        ; Make checkmark visible
-        lda     #32
-        sta     MyOAM+60
-:
+        beq     @no_collision
+
+        ; Swap velocity between Mario and Luigi
+        swap MarioDX, LuigiDX
+        swap MarioDXFrac, LuigiDXFrac
+        swap MarioDY, LuigiDY
+        swap MarioDYFrac, LuigiDYFrac
+
+@no_collision:
         rts
 
 

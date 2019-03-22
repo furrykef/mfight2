@@ -34,6 +34,16 @@ TRUE = $ff
 .endmacro
 
 
+.macro swap foo, bar
+        lda     foo
+        pha
+        lda     bar
+        sta     foo
+        pla
+        sta     bar
+.endmacro
+
+
 .segment "ZEROPAGE"
 
 ; Temp variables
