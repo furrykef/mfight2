@@ -195,7 +195,7 @@ MoveOnePlayer:
         lda     #WALK_ACCEL
         bit     T0
         bmi     :+
-        lsr                                 ; halve acceleration while in midair
+        lsr                                 ; reduce acceleration while in midair
 :
         sta     Accel
 
@@ -203,18 +203,24 @@ MoveOnePlayer:
         and     #JOY_LEFT
         beq     @try_right
         ; Moving left
+        lda     PlayerIsGrounded,x          ; don't allow flipping if in midair
+        beq     :+
         lda     PlayerAttrs,x
         ora     #$40                        ; flip horizontal
         sta     PlayerAttrs,x
+:
         jmp     ApplyAccelLeft
 @try_right:
         ; Moving right
         lda     JoyState,x
         and     #JOY_RIGHT
         beq     @stop
+        lda     PlayerIsGrounded,x          ; don't allow flipping if in midair
+        beq     :+
         lda     PlayerAttrs,x
         and     #~$40                       ; do not flip horizontal
         sta     PlayerAttrs,x
+:
         jmp     ApplyAccelRight
 @stop:
         lda     #0
