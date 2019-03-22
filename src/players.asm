@@ -120,7 +120,9 @@ MoveOnePlayer:
         adc     PlayerDY,x
         sta     PlayerY,x
 
-        ; Collide, but only if we're not rising
+        ; Collide with BG (but only if we're not rising)
+        lda     PlayerDY,x
+        bmi     @in_midair                  ; rising
         jsr     CheckPlayerBGCollision
         sta     PlayerIsGrounded,x
         beq     @in_midair
@@ -128,15 +130,14 @@ MoveOnePlayer:
         ; Player is on ground; snap to tile boundary
         lda     PlayerY,x
         and     #$f8
-        ;add     #7
         sta     PlayerY,x
-        ; Kill vertical velocity
         lda     #0
         sta     PlayerYFrac,x
+        ; Kill vertical velocity
         sta     PlayerDY,x
         sta     PlayerDYFrac,x
 
-        ; Is player jumping?
+        ; Is player beginning a jump?
         lda     JoyDown,x
         and     #JOY_A
         beq     @check_horizontal_movement
