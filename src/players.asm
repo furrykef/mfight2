@@ -120,6 +120,14 @@ MoveOnePlayer:
         adc     PlayerDY,x
         sta     PlayerY,x
 
+        ; If the player is too far down, flip his priority so he goes behind the lava tiles
+        cmp     #200
+        blt     @not_falling_into_lava
+        lda     PlayerAttrs,x
+        ora     #$20
+        sta     PlayerAttrs,x
+@not_falling_into_lava:
+
         ; Collide with BG (but only if we're not rising)
         lda     PlayerDY,x
         bmi     @in_midair                  ; rising
