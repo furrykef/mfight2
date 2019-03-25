@@ -13,37 +13,37 @@ WALK_MAX_SPEED = $0180
 
 .segment "ZEROPAGE"
 
-PlayerX:
-MarioX:             .res 1
-LuigiX:             .res 1
+PlayerXH:
+MarioXH:            .res 1
+LuigiXH:            .res 1
 
-PlayerXFrac:
-MarioXFrac:         .res 1
-LuigiXFrac:         .res 1
+PlayerXL:
+MarioXL:            .res 1
+LuigiXL:            .res 1
 
-PlayerDX:
-MarioDX:            .res 1
-LuigiDX:            .res 1
+PlayerDXH:
+MarioDXH:           .res 1
+LuigiDXH:           .res 1
 
-PlayerDXFrac:
-MarioDXFrac:        .res 1
-LuigiDXFrac:        .res 1
+PlayerDXL:
+MarioDXL:           .res 1
+LuigiDXL:           .res 1
 
-PlayerY:
-MarioY:             .res 1
-LuigiY:             .res 1
+PlayerYH:
+MarioYH:            .res 1
+LuigiYH:            .res 1
 
-PlayerDY:
-MarioDY:            .res 1
-LuigiDY:            .res 1
+PlayerYL:
+MarioYL:            .res 1
+LuigiYL:            .res 1
 
-PlayerYFrac:
-MarioYFrac:         .res 1
-LuigiYFrac:         .res 1
+PlayerDYH:
+MarioDYH:           .res 1
+LuigiDYH:           .res 1
 
-PlayerDYFrac:
-MarioDYFrac:        .res 1
-LuigiDYFrac:        .res 1
+PlayerDYL:
+MarioDYL:           .res 1
+LuigiDYL:           .res 1
 
 PlayerAttrs:
 MarioAttrs:         .res 1
@@ -69,24 +69,24 @@ ObjRightPlusShift:  .res 2
 
 InitPlayers:
         lda     #64
-        sta     MarioX
+        sta     MarioXH
         lda     #192
-        sta     LuigiX
+        sta     LuigiXH
         lda     #0
-        sta     MarioXFrac
-        sta     LuigiXFrac
-        sta     MarioY
-        sta     LuigiY
-        sta     MarioYFrac
-        sta     LuigiYFrac
-        sta     MarioDX
-        sta     LuigiDX
-        sta     MarioDXFrac
-        sta     LuigiDXFrac
-        sta     MarioDY
-        sta     LuigiDY
-        sta     MarioDYFrac
-        sta     LuigiDYFrac
+        sta     MarioXL
+        sta     LuigiXL
+        sta     MarioYH
+        sta     LuigiYH
+        sta     MarioYL
+        sta     LuigiYL
+        sta     MarioDXH
+        sta     LuigiDXH
+        sta     MarioDXL
+        sta     LuigiDXL
+        sta     MarioDYH
+        sta     LuigiDYH
+        sta     MarioDYL
+        sta     LuigiDYL
         lda     #0
         sta     MarioAttrs
         lda     #$41
@@ -106,19 +106,19 @@ MovePlayers:
         jmp     MoveOnePlayer
 
 MoveOnePlayer:
-        lda     PlayerXFrac,x
-        add     PlayerDXFrac,x
-        sta     PlayerXFrac,x
-        lda     PlayerX,x
-        adc     PlayerDX,x
-        sta     PlayerX,x
+        lda     PlayerXL,x
+        add     PlayerDXL,x
+        sta     PlayerXL,x
+        lda     PlayerXH,x
+        adc     PlayerDXH,x
+        sta     PlayerXH,x
 
-        lda     PlayerYFrac,x
-        add     PlayerDYFrac,x
-        sta     PlayerYFrac,x
-        lda     PlayerY,x
-        adc     PlayerDY,x
-        sta     PlayerY,x
+        lda     PlayerYL,x
+        add     PlayerDYL,x
+        sta     PlayerYL,x
+        lda     PlayerYH,x
+        adc     PlayerDYH,x
+        sta     PlayerYH,x
 
         ; If the player is too far down, flip his priority so he goes behind the lava tiles
         cmp     #200
@@ -129,21 +129,21 @@ MoveOnePlayer:
 @not_falling_into_lava:
 
         ; Collide with BG (but only if we're not rising)
-        lda     PlayerDY,x
+        lda     PlayerDYH,x
         bmi     @in_midair                  ; rising
         jsr     CheckPlayerBGCollision
         sta     PlayerIsGrounded,x
         beq     @in_midair
 
         ; Player is on ground; snap to tile boundary
-        lda     PlayerY,x
+        lda     PlayerYH,x
         and     #$f8
-        sta     PlayerY,x
+        sta     PlayerYH,x
         lda     #0
-        sta     PlayerYFrac,x
+        sta     PlayerYL,x
         ; Kill vertical velocity
-        sta     PlayerDY,x
-        sta     PlayerDYFrac,x
+        sta     PlayerDYH,x
+        sta     PlayerDYL,x
 
         ; Is player beginning a jump?
         lda     JoyDown,x
@@ -154,13 +154,13 @@ MoveOnePlayer:
         lda     #FALSE
         sta     PlayerIsGrounded,x
         lda     #>JUMP_VELOCITY
-        sta     PlayerDY,x
+        sta     PlayerDYH,x
         lda     #<JUMP_VELOCITY
-        sta     PlayerDYFrac,x
+        sta     PlayerDYL,x
         jmp     @check_horizontal_movement
 
 @in_midair:
-        lda     PlayerDY,x
+        lda     PlayerDYH,x
         bmi     @rising
         cmp     #7
         bge     @terminal_velocity
@@ -172,21 +172,21 @@ MoveOnePlayer:
         and     #JOY_A
         bne     @no_extra_gravity
         ; A button not held; use high gravity (1 px/frame)
-        inc     PlayerDY,x
+        inc     PlayerDYH,x
         jmp     @check_horizontal_movement
 
 @no_extra_gravity:
-        lda     PlayerDYFrac,x
+        lda     PlayerDYL,x
         add     #GRAVITY
-        sta     PlayerDYFrac,x
-        inc_cs  {PlayerDY,x}
+        sta     PlayerDYL,x
+        inc_cs  {PlayerDYH,x}
         jmp     @check_horizontal_movement
 
 @terminal_velocity:
         lda     #7
-        sta     PlayerDY,x
+        sta     PlayerDYH,x
         lda     #0
-        sta     PlayerDYFrac,x
+        sta     PlayerDYL,x
         jmp     @check_horizontal_movement
 
 @check_horizontal_movement:
@@ -224,8 +224,8 @@ MoveOnePlayer:
         jmp     ApplyAccelRight
 @stop:
         lda     #0
-        sta     PlayerDX,x
-        sta     PlayerDXFrac,x
+        sta     PlayerDXH,x
+        sta     PlayerDXL,x
         rts
 
 
@@ -233,9 +233,9 @@ MoveOnePlayer:
 ApplyAccelLeft:
         ; Don't accelerate if our horizontal velocity <= minimum
         ; (This is a signed comparison; result is in N flag instead of C flag)
-        lda     PlayerDXFrac,x
+        lda     PlayerDXL,x
         cmp     #<(-WALK_MAX_SPEED)
-        lda     PlayerDX,x
+        lda     PlayerDXH,x
         sbc     #>(-WALK_MAX_SPEED)
         bvc     @dont_flip_sign
         eor     #$80
@@ -243,14 +243,14 @@ ApplyAccelLeft:
         bmi     @end                        ; bail if our speed's already maxed out
 
         ; Apply acceleration
-        lda     PlayerDXFrac,x
+        lda     PlayerDXL,x
         sub     Accel
-        sta     PlayerDXFrac,x
-        dec_cc  {PlayerDX,x}
+        sta     PlayerDXL,x
+        dec_cc  {PlayerDXH,x}
 
         ; If we exceed min velocity, clamp it.
         cmp     #<-(WALK_MAX_SPEED)
-        lda     PlayerDX,x
+        lda     PlayerDXH,x
         sbc     #>-(WALK_MAX_SPEED)
         bvc     @dont_flip_sign2
         eor     #$80
@@ -259,9 +259,9 @@ ApplyAccelLeft:
 
         ; Exceeded min; clamp
         lda     #<(-WALK_MAX_SPEED)
-        sta     PlayerDXFrac,x
+        sta     PlayerDXL,x
         lda     #>(-WALK_MAX_SPEED)
-        sta     PlayerDX,x
+        sta     PlayerDXH,x
 
 @end:
         rts
@@ -271,9 +271,9 @@ ApplyAccelLeft:
 ApplyAccelRight:
         ; Don't accelerate if our horizontal velocity >= maximum
         ; (This is a signed comparison; result is in N flag instead of C flag)
-        lda     PlayerDXFrac,x
+        lda     PlayerDXL,x
         cmp     #<WALK_MAX_SPEED
-        lda     PlayerDX,x
+        lda     PlayerDXH,x
         sbc     #>WALK_MAX_SPEED
         bvc     @dont_flip_sign
         eor     #$80
@@ -281,14 +281,14 @@ ApplyAccelRight:
         bpl     @end                        ; bail if our speed's already maxed out
 
         ; Apply acceleration
-        lda     PlayerDXFrac,x
+        lda     PlayerDXL,x
         add     Accel
-        sta     PlayerDXFrac,x
-        inc_cs  {PlayerDX,x}
+        sta     PlayerDXL,x
+        inc_cs  {PlayerDXH,x}
 
         ; If we exceed max velocity, clamp it.
         cmp     #<WALK_MAX_SPEED
-        lda     PlayerDX,x
+        lda     PlayerDXH,x
         sbc     #>WALK_MAX_SPEED
         bvc     @dont_flip_sign2
         eor     #$80
@@ -297,9 +297,9 @@ ApplyAccelRight:
 
         ; Exceeded max; clamp
         lda     #<WALK_MAX_SPEED
-        sta     PlayerDXFrac,x
+        sta     PlayerDXL,x
         lda     #>WALK_MAX_SPEED
-        sta     PlayerDX,x
+        sta     PlayerDXH,x
 
 @end:
         rts
@@ -326,7 +326,7 @@ GetBGTileAtPlayer:
 
         lda     #0
         sta     T2                          ; MSB of addend
-        lda     PlayerY,x                   ; A will be the LSB
+        lda     PlayerYH,x                   ; A will be the LSB
 
         ; Divide by 8 to convert pixels to tiles, then multiply by 32 to convert to array index.
         ; This is equivalent to shifting right by three, then left by five, or (as here)
@@ -345,7 +345,7 @@ GetBGTileAtPlayer:
         sta     T1
 
         ; T0 now points to the start of the row we're on
-        lda     PlayerX,x
+        lda     PlayerXH,x
         lsr                                 ; convert from pixels to tiles
         lsr
         lsr
@@ -355,7 +355,7 @@ GetBGTileAtPlayer:
 
 
 CheckPlayerCollisions:
-        lda     MarioX
+        lda     MarioXH
         sub     #5
         sta     ObjLeft
         eor     #$80
@@ -365,13 +365,13 @@ CheckPlayerCollisions:
         sta     ObjRight
         eor     #$80
         sta     ObjRightPlusShift
-        lda     MarioY
+        lda     MarioYH
         sta     ObjBottom
         sub     #16
         sta     ObjTop
 
         ; @FIXME@ duplicate code
-        lda     LuigiX
+        lda     LuigiXH
         sub     #5
         sta     ObjLeft+1
         eor     #$80
@@ -381,7 +381,7 @@ CheckPlayerCollisions:
         sta     ObjRight+1
         eor     #$80
         sta     ObjRightPlusShift+1
-        lda     LuigiY
+        lda     LuigiYH
         sta     ObjBottom+1
         sub     #16
         sta     ObjTop+1
@@ -393,17 +393,17 @@ CheckPlayerCollisions:
         beq     @no_collision
 
         ; Swap velocity between Mario and Luigi
-        swap MarioDX, LuigiDX
-        swap MarioDXFrac, LuigiDXFrac
-        swap MarioDY, LuigiDY
-        swap MarioDYFrac, LuigiDYFrac
+        swap MarioDXH, LuigiDXH
+        swap MarioDXL, LuigiDXL
+        swap MarioDYH, LuigiDYH
+        swap MarioDYL, LuigiDYL
 
         ; Let's exaggerate horizontal collisions a bit
 .repeat 2
-        asl     MarioDXFrac
-        rol     MarioDX
-        asl     LuigiDXFrac
-        rol     LuigiDX
+        asl     MarioDXL
+        rol     MarioDXH
+        asl     LuigiDXL
+        rol     LuigiDXH
 .endrepeat
 
 @no_collision:

@@ -21,9 +21,9 @@ RenderSprites:
 
 ; X = player ID
 RenderOnePlayer:
-        lda     PlayerX,x
+        lda     PlayerXH,x
         sta     SprX
-        lda     PlayerY,x
+        lda     PlayerYH,x
         sta     SprY
         lda     PlayerIsGrounded,x
         bne     @grounded
@@ -33,13 +33,14 @@ RenderOnePlayer:
         jmp     @not_walking
 
 @grounded:
-        lda     PlayerDX,x
+        lda     PlayerDXH,x
         bne     @walking
-        lda     PlayerDXFrac,x
+        lda     PlayerDXL,x
         beq     @not_walking                ; note the tile index will be 0
 @walking:
         ; Player is walking
-        lda     PlayerX,x
+        ; Which frame of walk cycle is used is determined by player's X coordinate
+        lda     PlayerXH,x
         and     #$0c
         lsr
         lsr
@@ -86,7 +87,7 @@ Render16x16:
         jmp     @not_flipped
 
 @flipped:
-        ; Sprite is flipped horizontally, so we have to flip the halves
+        ; Sprite is flipped horizontally, so we have to reverse the left and right halves
         sta     MyOAM+9,y
         add     #1
         sta     MyOAM+13,y
